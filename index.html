@@ -1,114 +1,194 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SharkBox - Earn Sharki</title>
+    <title>SharkBox - Unleash the Sharki</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main-color: #2ecc71; --accent: #00d2ff; --bg: #f4f7f6; --text: #2c3e50; --card-bg: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; user-select: none; }
+        :root {
+            --bg-deep: #050509; /* أسود عميق جداً */
+            --primary-neon: #00d2ff; /* أزرق نيون للشاركي */
+            --secondary-neon: #ff00ff; /* فوشيا نيون للتون */
+            --accent-red: #ff3c3c; /* أحمر "عضة" القرش */
+            --text-light: #ffffff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background: radial-gradient(circle at center, #102a43 0%, var(--bg-deep) 100%);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif; /* خط عصري */
+            margin: 0; padding: 0; overflow: hidden; user-select: none;
+            direction: ltr; /* نجعلها انجليزية للتصميم الرسمي */
+        }
+
+        /* --- Header: Neon Balances --- */
+        .top-bar {
+            padding: 25px 20px; text-align: center;
+            border-bottom: 2px solid var(--border-glass);
+            background: var(--glass); backdrop-filter: blur(10px);
+        }
+        .balance-box {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;
+        }
+        .stat {
+            background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px;
+            border: 1px solid var(--border-glass); transition: 0.3s;
+        }
+        .stat:hover { border-color: var(--primary-neon); transform: scale(1.03); }
+        .stat-val { font-size: 28px; font-weight: 800; }
+        .sharki-val { color: var(--primary-neon); text-shadow: 0 0 15px var(--primary-neon); }
+        .ton-val { color: var(--secondary-neon); text-shadow: 0 0 15px var(--secondary-neon); }
+        .stat-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- Pages --- */
+        .page { display: none; height: 100vh; padding-top: 20px; box-sizing: border-box; overflow-y: auto; padding-bottom: 120px;}
+        .page.active { display: block; animation: neonSlideIn 0.4s ease; }
+        @keyframes neonSlideIn { from { opacity: 0; transform: translateY(30px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
+        /* --- Home: Tapping SHARK Attack --- */
+        .shark-tap-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 55vh;
+            position: relative;
+        }
+        .shark-btn {
+            width: 250px; height: 250px;
+            background: url('https://img.icons8.com/clouds/500/shark.png') no-repeat center;
+            background-size: contain; transition: transform 0.05s, filter 0.1s;
+            cursor: pointer; filter: drop-shadow(0 0 20px rgba(0,210,255,0.5));
+            animation: idleSwim 4s ease-in-out infinite;
+        }
+        @keyframes idleSwim { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
         
-        /* الهيدر العلوي والرصيد */
-        .top-bar { background: var(--card-bg); padding: 15px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; position: sticky; top: 0; z-index: 100; }
-        .balance-box { display: flex; justify-content: space-around; align-items: center; margin-top: 10px; }
-        .stat { flex: 1; }
-        .stat-val { font-size: 20px; font-weight: bold; color: var(--main-color); }
-        .stat-label { font-size: 12px; color: #7f8c8d; }
+        /* عضة القرش */
+        .shark-btn.biting {
+            filter: drop-shadow(0 0 30px var(--accent-red)) brightness(1.2) !important;
+            transform: scale(1.1) rotate(-5deg) !important;
+            animation: none !important;
+        }
 
-        /* الصفحات */
-        .page { display: none; padding: 20px 15px 100px; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .energy-bar-container { width: 80%; height: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 25px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .energy-fill { height: 100%; background: linear-gradient(90deg, var(--primary-neon), #fff); width: 100%; transition: width 0.2s; }
 
-        /* زر النقر (Home) */
-        .shark-tap-area { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; }
-        .shark-btn { width: 180px; height: 180px; background: url('https://img.icons8.com/clouds/500/shark.png') no-repeat center; background-size: contain; transition: transform 0.1s; cursor: pointer; }
-        .shark-btn:active { transform: scale(0.9); }
-        .energy-bar-container { width: 80%; height: 10px; background: #ddd; border-radius: 5px; margin-top: 20px; overflow: hidden; }
-        .energy-fill { height: 100%; background: var(--accent); width: 100%; transition: width 0.3s; }
+        /* --- Tasks & Refer & Wallet: Gaming Interface --- */
+        .card {
+            background: var(--glass); border-radius: 15px; padding: 18px; margin: 0 15px 15px;
+            border: 1px solid var(--border-glass); transition: 0.3s;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+        
+        .task-icon { font-size: 28px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .go-btn {
+            background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--border-glass);
+            padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; font-size: 12px; letter-spacing: 1px;
+        }
+        .go-btn:hover { background: var(--primary-neon); border-color: var(--primary-neon); box-shadow: 0 0 15px var(--primary-neon); }
 
-        /* كروت المهام والاحالات */
-        .card { background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .task-info { display: flex; align-items: center; gap: 10px; }
-        .task-icon { font-size: 24px; color: var(--main-color); }
-        .go-btn { background: var(--main-color); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; }
+        /* --- Input fields for adding tasks & wallet --- */
+        input, select {
+            width: 100%; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-glass); color: #fff; margin-bottom: 10px; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--primary-neon); outline: none; box-shadow: 0 0 10px rgba(0,210,255,0.3); }
 
-        /* القائمة السفلية */
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; }
-        .nav-item { text-align: center; font-size: 11px; color: #bdc3c7; flex: 1; cursor: pointer; }
-        .nav-item.active { color: var(--main-color); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 2px; }
+        /* --- Neon Buttons (Actions) --- */
+        .action-btn {
+            background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--border-glass);
+            width: 100%; padding: 15px; border-radius: 12px; font-size: 14px; font-weight: bold;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .action-btn.neon-blue:hover { background: var(--primary-neon); border-color: var(--primary-neon); box-shadow: 0 0 20px var(--primary-neon); color: #000; }
+        .action-btn.neon-red:hover { background: var(--accent-red); border-color: var(--accent-red); box-shadow: 0 0 20px var(--accent-red); }
 
-        /* الأزرار الكبيرة */
-        .action-btn { background: var(--accent); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        /* --- Gaming Footer Navigation --- */
+        .nav {
+            position: fixed; bottom: 0; width: 100%;
+            background: var(--glass); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around; padding: 18px 0;
+            border-top: 2px solid var(--border-glass); z-index: 1000;
+        }
+        .nav-item { text-align: center; font-size: 10px; color: #666; flex: 1; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item.active { color: var(--primary-neon); text-shadow: 0 0 10px var(--primary-neon); transform: translateY(-3px); }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; }
+
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="top-bar">
-        <strong>SharkBox 🦈</strong>
+        <span style="letter-spacing: 3px; font-weight:800; font-size:18px;">SHARK<span style="color:var(--primary-neon)">BOX</span></span>
         <div class="balance-box">
             <div class="stat">
-                <div class="stat-val" id="sharki-bal">0.00</div>
-                <div class="stat-label">SHARKI</div>
+                <div class="stat-val sharki-val" id="sharki-bal">0.00</div>
+                <div class="stat-label">Sharki Power</div>
             </div>
-            <div class="stat" style="border-right: 1px solid #eee;">
-                <div class="stat-val" id="ton-bal" style="color: #0088cc;">0.0000</div>
-                <div class="stat-label">TON</div>
+            <div class="stat">
+                <div class="stat-val ton-val" id="ton-bal">0.0000</div>
+                <div class="stat-label">TON Coin</div>
             </div>
         </div>
     </div>
 
     <div id="earn" class="page active">
-        <div class="shark-tap-area" onclick="tapShark(event)">
-            <div class="shark-btn"></div>
+        <div class="shark-tap-area">
+            <div class="shark-btn" id="shark" onclick="tapShark(event)"></div>
             <div class="energy-bar-container">
                 <div class="energy-fill" id="energy-fill"></div>
             </div>
-            <p id="energy-text">1000/1000</p>
+            <p id="energy-text" style="color:#aaa; font-size:12px; margin-top:5px; letter-spacing:1px;">ENERGY: 1000/1000</p>
         </div>
     </div>
 
     <div id="tasks" class="page">
-        <h3 style="margin-top:0">📋 المهام المتاحة</h3>
+        <h4 style="margin:0 20px 15px; letter-spacing:1px; text-transform:uppercase;">// AVAILABLE MISSIONS</h4>
         <div class="card">
-            <div class="task-info">
-                <i class="fab fa-telegram task-icon"></i>
-                <div><div>انضم للقناة الرسمية</div><div style="color:var(--main-color); font-size:12px;">+10 SHARKI</div></div>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <i class="fab fa-telegram task-icon" style="color: #0088cc;"></i>
+                <div><div>Join TG Channel</div><div style="color:var(--primary-neon); font-size:12px;">+10 SHARKI</div></div>
             </div>
-            <button class="go-btn">ابدأ</button>
+            <button class="go-btn">START</button>
         </div>
-        <button class="action-btn" style="background: #2c3e50;">➕ إضافة مهمة جديدة (قناة/رابط)</button>
+        
+        <div style="padding: 0 15px;">
+            <button class="action-btn neon-blue" style="margin-top: 10px;"><i class="fas fa-plus"></i> ADD NEW MISSION (ADMIN)</button>
+        </div>
     </div>
 
     <div id="refer" class="page">
-        <h3>👥 دعوة الأصدقاء</h3>
+        <h4 style="margin:0 20px 15px; letter-spacing:1px; text-transform:uppercase;">// RECRUIT SHARKS</h4>
         <div class="card" style="flex-direction: column; text-align: center;">
-            <p>احصل على 0.005 TON عن كل إحالة ناجحة</p>
-            <input type="text" value="https://t.me/SharkBoxBot?start=123" readonly style="width: 100%; padding: 10px; border: 1px dashed var(--main-color); text-align: center; margin-bottom: 10px;">
-            <button class="go-btn" style="width: 100%;">نسخ الرابط</button>
+            <i class="fas fa-handshake fa-3x" style="color: var(--secondary-neon); margin-bottom: 15px;"></i>
+            <p style="font-size:14px; margin-top:0;">Earn <span style="color:var(--secondary-neon);">0.005 TON</span> per verified recruit.</p>
+            <input type="text" value="https://t.me/SharkBoxBot?start=123" readonly style="text-align:center; color: var(--secondary-neon);">
+            <button class="go-btn" style="width: 100%;">COPY LINK</button>
         </div>
     </div>
 
     <div id="wallet" class="page">
-        <h3>💰 الرصيد والعمليات</h3>
-        <div class="card" style="display: block; text-align: center;">
-            <p>حول عملة SHARKI إلى TON فوراً</p>
-            <button class="go-btn" style="width: 80%; background: var(--accent);">تحويل SHARKI ➔ TON</button>
+        <h4 style="margin:0 20px 15px; letter-spacing:1px; text-transform:uppercase;">// CRYPTO OPERATIONS</h4>
+        
+        <div class="card" style="display: block; text-align: center; border-color:var(--primary-neon); background:rgba(0,210,255,0.02)">
+            <p style="font-size:13px; margin-top:0;">Convert <span class="sharki-val">SHARKI</span> to <span class="ton-val">TON</span> INSTANTLY.</p>
+            <button class="go-btn" style="width: 80%; background: var(--primary-neon); color:#000;">CONVERT SHARKI</button>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="action-btn">📥 إيداع تلقائي</button>
-            <button class="action-btn" style="background: #e74c3c;">📤 سحب TON</button>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 15px;">
+            <button class="action-btn neon-blue"><i class="fas fa-arrow-down"></i> DEPOSIT (AUTO)</button>
+            <button class="action-btn neon-red"><i class="fas fa-arrow-up"></i> WITHDRAW TON</button>
         </div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="showP('earn', this)"><i class="fas fa-coins"></i>الربح</div>
-        <div class="nav-item" onclick="showP('tasks', this)"><i class="fas fa-check-double"></i>المهام</div>
-        <div class="nav-item" onclick="showP('refer', this)"><i class="fas fa-users"></i>الإحالة</div>
-        <div class="nav-item" onclick="showP('wallet', this)"><i class="fas fa-wallet"></i>المحفظة</div>
+        <div class="nav-item active" onclick="showP('earn', this)"><i class="fas fa-fire"></i>EARN</div>
+        <div class="nav-item" onclick="showP('tasks', this)"><i class="fas fa-skull"></i>MISSIONS</div>
+        <div class="nav-item" onclick="showP('refer', this)"><i class="fas fa-hand-fist"></i>RECRUIT</div>
+        <div class="nav-item" onclick="showP('wallet', this)"><i class="fas fa-shield-alt"></i>WALLET</div>
     </nav>
 
     <script>
@@ -116,18 +196,26 @@
         let energy = 1000;
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.headerColor = '#050509'; /* لتغيير لون هيدر تليجرام */
 
         function tapShark(e) {
             if(energy <= 0) return;
             sharki += 1;
             energy -= 1;
             updateUI();
-            tg.HapticFeedback.impactOccurred('medium');
+            
+            const sharkEl = document.getElementById('shark');
+            
+            // إضافة تأثير "العضة" (تغيير اللون والscale)
+            sharkEl.classList.add('biting');
+            setTimeout(() => sharkEl.classList.remove('biting'), 80); // إزالة التأثير بسرعة
+
+            tg.HapticFeedback.impactOccurred('rigid'); // اهتزاز قوي عند العضة
         }
 
         function updateUI() {
             document.getElementById('sharki-bal').innerText = sharki.toFixed(2);
-            document.getElementById('energy-text').innerText = `${energy}/1000`;
+            document.getElementById('energy-text').innerText = `ENERGY: ${energy}/1000`;
             document.getElementById('energy-fill').style.width = (energy/10) + '%';
         }
 
