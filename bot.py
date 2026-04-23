@@ -7,7 +7,7 @@ from aiohttp import web
 
 TOKEN = '7984683232:AAHWb6fdOK9g_IPDNJFVESFMNXGvv757pTU'
 # سيتم استبدال هذا الرابط لاحقاً برابط Vercel الخاص بك
-WEB_APP_URL = "https://sharkbox-app.vercel.app"
+WEB_APP_URL = "https://sharkbux-project.vercel.app"
 
 # سطر برمجي لفتح منفذ وهمي لكي يقبله موقع Render المجاني
 async def handle(request):
