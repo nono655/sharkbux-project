@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SHARK BUCKS — ABYSSAL EDITION</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --gold: #D4A843;
+  --gold-light: #F2D06B;
+  --gold-dim: #8B6914;
+  --teal: #00E5BF;
+  --teal-dim: #007A64;
+  --crimson: #E8364F;
+  --crimson-dim: #7A1B28;
+  --bg-abyss: #04080D;
+  --bg-deep: #0A0F18;
+  --bg-mid: #111820;
+  --card-glass: rgba(14, 22, 33, 0.65);
+  --card-border: rgba(212, 168, 67, 0.12);
+  --text-primary: #E8DFD0;
+  --text-muted: #6B7A8D;
+  --text-dim: #3A4554;
+  --glow-gold: rgba(212, 168, 67, 0.25);
+  --glow-teal: rgba(0, 229, 191, 0.2);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+}
+
+html,body{
+  height:100%;overflow:hidden;
+  background:var(--bg-abyss);
+  color:var(--text-primary);
+  font-family:'Tajawal',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 600px 400px at 80% 10%, rgba(0,229,191,0.04), transparent),
+    radial-gradient(ellipse 500px 500px at 20% 80%, rgba(212,168,67,0.03), transparent);
+}
+
+body::after{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:128px 128px;
+}
+
+.app{position:relative;height:100vh;display:flex;flex-direction:column;z-index:1}
+
+/* ═══ HEADER ═══ */
+.header{
+  position:relative;z-index:10;
+  padding:18px 20px 14px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  background:linear-gradient(180deg, rgba(4,8,13,0.95) 0%, transparent 100%);
+}
+.header::after{
+  content:'';position:absolute;bottom:0;left:20px;right:20px;height:1px;
+  background:linear-gradient(90deg, transparent, var(--card-border), transparent);
+}
+.hdr-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.hdr-val{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;line-height:1}
+.hdr-val.gold{color:var(--gold);text-shadow:0 0 20px var(--glow-gold)}
+.hdr-val.white{color:var(--text-primary);font-size:17px}
+.hdr-group{text-align:right}
+.hdr-group:first-child{text-align:left}
+
+/* ═══ MAIN CONTENT ═══ */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:90px;scroll-behavior:smooth}
+.main::-webkit-scrollbar{display:none}
+
+.page{display:none;padding:0 20px;animation:pageIn .5s cubic-bezier(.22,1,.36,1) both}
+.page.active{display:block}
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(24px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* ═══ TAP PAGE ═══ */
+.abyss-portal{
+  position:relative;
+  height:52vh;min-height:320px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+
+.caustics{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+  border-radius:50%;
+  width:340px;height:340px;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  opacity:0.5;
+}
+.caustic-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(0,229,191,0.06);
+  animation:causticPulse 4s ease-in-out infinite;
+}
+.caustic-ring:nth-child(2){inset:20px;animation-delay:1s;border-color:rgba(212,168,67,0.05)}
+.caustic-ring:nth-child(3){inset:40px;animation-delay:2s;border-color:rgba(0,229,191,0.04)}
+.caustic-ring:nth-child(4){inset:60px;animation-delay:3s}
+@keyframes causticPulse{
+  0%,100%{transform:scale(1);opacity:.4}
+  50%{transform:scale(1.08);opacity:.8}
+}
+
+.shark-silhouette{
+  position:relative;z-index:5;
+  width:260px;height:260px;
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  filter:drop-shadow(0 0 40px rgba(0,229,191,0.15)) drop-shadow(0 20px 40px rgba(0,0,0,0.7));
+  cursor:pointer;
+  transition:transform .08s ease;
+}
+.shark-silhouette:active{transform:scale(.88) rotate(1deg)}
+.shark-silhouette.breathe{animation:sharkBreathe 3s ease-in-out infinite}
+@keyframes sharkBreathe{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-8px) scale(1.03)}
+}
+
+.ripple{
+  position:absolute;border-radius:50%;pointer-events:none;
+  border:2px solid var(--gold);
+  animation:rippleOut .7s ease-out forwards;
+  z-index:4;
+}
+@keyframes rippleOut{
+  from{width:0;height:0;opacity:.7;border-width:2px}
+  to{width:200px;height:200px;opacity:0;border-width:.5px;margin-left:-100px;margin-top:-100px}
+}
+
+.tap-fly{
+  position:fixed;pointer-events:none;z-index:200;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;
+  color:var(--gold-light);
+  text-shadow:0 0 12px var(--glow-gold);
+  animation:flyUp .9s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes flyUp{
+  0%{opacity:1;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(-100px) scale(1.4)}
+}
+
+/* energy bar */
+.energy-wrap{width:88%;margin-top:28px}
+.energy-track{
+  position:relative;height:6px;border-radius:3px;overflow:hidden;
+  background:var(--bg-mid);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.5);
+}
+.energy-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light));
+  box-shadow:0 0 12px var(--glow-gold);
+  transition:width .3s ease;
+}
+.energy-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:10px;font-size:11px;color:var(--text-muted);
+  font-family:'Rajdhani',sans-serif;font-weight:600;
+}
+.energy-meta .evo-tag{
+  color:var(--teal);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;
+  background:rgba(0,229,191,0.08);border:1px solid rgba(0,229,191,0.15);
+}
+
+/* floating particles */
+.particle{
+  position:fixed;pointer-events:none;z-index:2;border-radius:50%;
+  animation:particleDrift linear infinite;
+}
+@keyframes particleDrift{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(-100vh) translateX(30px);opacity:0}
+}
+
+/* ═══ TRADE PAGE ═══ */
+.trade-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:20px 0 16px;
+}
+.trade-pair{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px}
+.trade-price{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px}
+
+.chart-vault{
+  background:var(--card-glass);backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);border-radius:var(--radius-lg);
+  padding:20px 16px 16px;position:relative;overflow:hidden;
+}
+.chart-vault::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity:.3;
+}
+.chart-canvas{
+  width:100%;height:200px;
+  display:flex;align-items:flex-end;gap:4px;
+  padding:8px 4px;overflow:hidden;
+}
+.candle-col{flex:1;min-width:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.candle-wick{width:1px;background:currentColor;opacity:.4;transition:height .5s ease}
+.candle-body{width:70%;border-radius:2px;transition:height .5s ease;min-height:2px}
+
+.trade-vol{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin:14px 0;
+}
+.vol-chip{
+  background:var(--bg-mid);border-radius:var(--radius-sm);
+  padding:10px 14px;text-align:center;
+  font-family:'Rajdhani',sans-serif;
+}
+.vol-chip .v-label{font-size:9px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase}
+.vol-chip .v-val{font-size:16px;font-weight:700;margin-top:2px}
+
+.btn-sell{
+  width:100%;border:none;padding:16px;border-radius:var(--radius-md);
+  font-weight:900;font-family:'Tajawal',sans-serif;font-size:15px;
+  cursor:pointer;transition:.2s;
+  background:linear-gradient(135deg, var(--crimson), var(--crimson-dim));
+  color:white;
+  box-shadow:0 6px 24px rgba(232,54,79,0.25);
+  position:relative;overflow:hidden;
+}
+.btn-sell::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+  transform:translateX(-100%);
+  transition:transform .6s;
+}
+.btn-sell:hover::after,.btn-sell:active::after{transform:translateX(100%)}
+.btn-sell:active{transform:scale(.97)}
+
+.trade-disclaimer{text-align:center;color:var(--text-dim);font-size:9px;margin-top:12px;letter-spacing:.5px}
+
+/* ═══ EVO PAGE ═══ */
+.evo-title{
+  text-align:center;margin:20px 0 24px;
+  font-family:'Aref Ruqaa',serif;font-size:22px;font-weight:700;
+  color:var(--gold);
+  text-shadow:0 0 30px var(--glow-gold);
+}
+
+.beast-scroll{display:flex;flex-direction:column;gap:16px;padding-bottom:20px}
+.beast-tome{
+  display:flex;align-items:center;gap:16px;
+  padding:18px;border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--card-glass), rgba(10,15,24,0.8));
+  border:1px solid var(--card-border);
+  backdrop-filter:blur(12px);
+  position:relative;overflow:hidden;
+  transition:all .3s ease;
+}
+.beast-tome::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, transparent, var(--card-border), transparent);
+}
+.beast-tome.current{
+  border-color:rgba(0,229,191,0.25);
+  box-shadow:0 0 30px var(--glow-teal), inset 0 0 30px rgba(0,229,191,0.03);
+}
+.beast-tome.locked{opacity:.6}
+.beast-tome.locked::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg, transparent, transparent 4px, rgba(255,255,255,.01) 4px, rgba(255,255,255,.01) 8px);
+}
+.beast-tome img{width:90px;height:90px;object-fit:contain;z-index:2;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6))}
+.beast-tome .bt-info{flex:1;z-index:2}
+.beast-tome .bt-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--gold);margin-bottom:4px}
+.beast-tome .bt-stats{font-size:11px;color:var(--text-muted);line-height:1.7}
+.beast-tome .bt-stats span{color:var(--teal);font-family:'Rajdhani',sans-serif;font-weight:600}
+.bt-action{
+  border:none;padding:10px 18px;border-radius:var(--radius-sm);
+  font-weight:700;font-family:'Tajawal',sans-serif;font-size:13px;
+  cursor:pointer;transition:.2s;
+  background:linear-gradient(135deg, var(--gold), var(--gold-dim));
+  color:var(--bg-abyss);
+  box-shadow:0 4px 16px var(--glow-gold);
+}
+.bt-action:active{transform:scale(.94)}
+.bt-badge{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:10px;font-weight:700;letter-spacing:1px;
+  background:rgba(0,229,191,0.12);color:var(--teal);border:1px solid rgba(0,229,191,0.2);
+}
+
+/* ═══ TASKS PAGE ═══ */
+.tasks-header{
+  margin:20px 0 20px;
+  padding-right:16px;border-right:3px solid var(--gold);
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;
+  color:var(--gold);letter-spacing:1px;
+}
+.task-card{
+  display:flex;align-items:center;gap:14px;
+  padding:16px;border-radius:var(--radius-md);
+  background:var(--card-glass);border:1px solid var(--card-border);
+  backdrop-filter:blur(10px);margin-bottom:12px;
+  transition:transform .2s;
+}
+.task-card:active{transform:scale(.98)}
+.task-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(212,168,67,0.08);color:var(--gold);font-size:18px;
+  flex-shrink:0;
+}
+.task-body{flex:1}
+.task-body h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.task-body p{font-size:11px;color:var(--text-muted)}
+.task-go{
+  border:none;padding:8px 16px;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg, var(--gold), var(--gold-dim));
+  color:var(--bg-abyss);font-weight:700;font-size:12px;
+  cursor:pointer;transition:.2s;flex-shrink:0;
+}
+.task-go:active{transform:scale(.92)}
+
+/* ═══ WALLET PAGE ═══ */
+.wallet-title{
+  font-family:'Aref Ruqaa',serif;font-size:22px;font-weight:700;
+  color:var(--gold);margin:20px 0 20px;
+  text-shadow:0 0 20px var(--glow-gold);
+}
+.vault-card{
+  display:flex;align-items:center;gap:16px;
+  padding:20px;border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--card-glass), rgba(10,15,24,0.8));
+  border:1px solid var(--card-border);
+  backdrop-filter:blur(12px);margin-bottom:14px;
+  cursor:pointer;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.vault-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, transparent, rgba(255,255,255,0.02));
+  transition:opacity .3s;opacity:0;
+}
+.vault-card:hover::after,.vault-card:active::after{opacity:1}
+.vault-card:active{transform:scale(.97)}
+.vault-icon{
+  width:50px;height:50px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.vault-icon.deposit{background:rgba(0,229,191,0.1);color:var(--teal)}
+.vault-icon.withdraw{background:rgba(232,54,79,0.1);color:var(--crimson)}
+.vault-body{flex:1}
+.vault-body h4{font-size:15px;font-weight:700;margin-bottom:2px}
+.vault-body p{font-size:11px;color:var(--text-muted)}
+
+/* ═══ NAVBAR ═══ */
+.nav{
+  position:fixed;bottom:12px;left:12px;right:12px;
+  height:68px;border-radius:22px;z-index:1000;
+  background:rgba(10,15,24,0.85);
+  backdrop-filter:blur(20px) saturate(1.2);
+  border:1px solid rgba(212,168,67,0.08);
+  box-shadow:0 -4px 30px rgba(0,0,0,.4);
+  display:flex;justify-content:space-around;align-items:center;
+}
+.nav-item{
+  text-align:center;cursor:pointer;
+  transition:all .25s cubic-bezier(.22,1,.36,1);
+  color:var(--text-dim);font-size:9px;font-weight:700;
+  letter-spacing:1px;padding:6px 0;
+  font-family:'Rajdhani',sans-serif;
+  position:relative;
+}
+.nav-item i{font-size:22px;display:block;margin-bottom:3px;transition:all .25s}
+.nav-item.active{color:var(--gold)}
+.nav-item.active i{transform:translateY(-3px);filter:drop-shadow(0 0 8px var(--glow-gold))}
+.nav-item.active::after{
+  content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 8px var(--glow-gold);
+}
+
+/* ═══ SHARED ═══ */
+.glass-card{
+  background:var(--card-glass);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);
+  backdrop-filter:blur(12px);
+}
+
+/* ═══ SCROLLBAR ═══ */
+.main::-webkit-scrollbar{width:0;display:none}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.stagger>*{
+  animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;
+}
+.stagger>*:nth-child(1){animation-delay:.05s}
+.stagger>*:nth-child(2){animation-delay:.1s}
+.stagger>*:nth-child(3){animation-delay:.15s}
+.stagger>*:nth-child(4){animation-delay:.2s}
+.stagger>*:nth-child(5){animation-delay:.25s}
+
+/* ═══ RESPONSIVE ═══ */
+@media(min-width:420px){
+  .shark-silhouette{width:300px;height:300px}
+}
+@media(min-width:500px){
+  .app{max-width:440px;margin:0 auto;border-left:1px solid var(--card-border);border-right:1px solid var(--card-border)}
+  .nav{max-width:416px;left:50%;transform:translateX(-50%)}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="hdr-group">
+      <div class="hdr-label">TOTAL POWER</div>
+      <div id="top-bal" class="hdr-val gold">0</div>
+    </div>
+    <div class="hdr-group">
+      <div class="hdr-label">TON ASSETS</div>
+      <div id="top-ton" class="hdr-val white">0.0000</div>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- ═══ TAP ═══ -->
+    <div id="page-home" class="page active">
+      <div class="abyss-portal" id="portal">
+        <div class="caustics">
+          <div class="caustic-ring"></div>
+          <div class="caustic-ring"></div>
+          <div class="caustic-ring"></div>
+          <div class="caustic-ring"></div>
+        </div>
+        <div id="shark-body" class="shark-silhouette breathe" onclick="handleTap(event)"></div>
+      </div>
+      <div class="energy-wrap">
+        <div class="energy-track">
+          <div id="energy-bar" class="energy-fill" style="width:100%"></div>
+        </div>
+        <div class="energy-meta">
+          <span id="energy-txt">⚡ 1000 / 1000</span>
+          <span id="level-name" class="evo-tag">EVO 1: BABY</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TRADE ═══ -->
+    <div id="page-trade" class="page">
+      <div class="trade-header">
+        <div class="trade-pair">SHARK / TON</div>
+        <div id="live-price" class="trade-price" style="color:var(--teal)">0.000100 ↑</div>
+      </div>
+      <div class="chart-vault">
+        <div class="chart-canvas" id="chart-container"></div>
+        <div class="trade-vol">
+          <div class="vol-chip"><div class="v-label">24H VOL</div><div class="v-val" id="vol-24h">1.2M</div></div>
+          <div class="vol-chip"><div class="v-label">HIGH</div><div class="v-val" id="price-high" style="color:var(--teal)">0.000106</div></div>
+        </div>
+        <button class="btn-sell" onclick="sellProfit()">بيع كل الأرباح</button>
+      </div>
+      <div class="trade-disclaimer">السوق يتحدث كل 3 ثوانٍ · البيانات تجريبية</div>
+    </div>
+
+    <!-- ═══ EVO ═══ -->
+    <div id="page-evo" class="page">
+      <div class="evo-title">تطوير القرش</div>
+      <div id="evo-list" class="beast-scroll stagger"></div>
+    </div>
+
+    <!-- ═══ TASKS ═══ -->
+    <div id="page-tasks" class="page">
+      <div class="tasks-header">المهمات</div>
+      <div class="stagger">
+        <div class="task-card">
+          <div class="task-icon"><i class="fab fa-x-twitter"></i></div>
+          <div class="task-body"><h4>تابعنا على X</h4><p>المكافأة: 2,500 شارك</p></div>
+          <button class="task-go">انطلق</button>
+        </div>
+        <div class="task-card">
+          <div class="task-icon"><i class="fab fa-telegram"></i></div>
+          <div class="task-body"><h4>انضم للقناة</h4><p>المكافأة: 5,000 شارك</p></div>
+          <button class="task-go">انطلق</button>
+        </div>
+        <div class="task-card">
+          <div class="task-icon"><i class="fas fa-user-plus"></i></div>
+          <div class="task-body"><h4>ادعُ صديقاً</h4><p>المكافأة: 10,000 شارك</p></div>
+          <button class="task-go">انطلق</button>
+        </div>
+        <div class="task-card">
+          <div class="task-icon"><i class="fas fa-star"></i></div>
+          <div class="task-body"><h4>حقق المستوى الثاني</h4><p>المكافأة: 1,000 شارك</p></div>
+          <button class="task-go">انطلق</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ WALLET ═══ -->
+    <div id="page-wallet" class="page">
+      <div class="wallet-title">الخزنة</div>
+      <div class="stagger">
+        <div class="vault-card" onclick="tg.showAlert('عنوان إيداع TON الخاص بك: xxxxxxx')">
+          <div class="vault-icon deposit"><i class="fas fa-university"></i></div>
+          <div class="vault-body"><h4>إيداع الأموال</h4><p>تحويل TON فوري</p></div>
+        </div>
+        <div class="vault-card" onclick="tg.showAlert('بوابة السحب متصلة بالخادم')">
+          <div class="vault-icon withdraw"><i class="fas fa-rocket"></i></div>
+          <div class="vault-body"><h4>سحب الأرباح</h4><p>الحد الأدنى: 0.5 TON</p></div>
+        </div>
+        <div class="vault-card" onclick="tg.showAlert('سجل المعاملات قريباً')">
+          <div class="vault-icon deposit"><i class="fas fa-clock-rotate-left"></i></div>
+          <div class="vault-body"><h4>سجل المعاملات</h4><p>عرض العمليات السابقة</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="nav">
+    <div class="nav-item active" onclick="navTo('page-home',this)"><i class="fas fa-bolt"></i>TAP</div>
+    <div class="nav-item" onclick="navTo('page-trade',this)"><i class="fas fa-chart-bar"></i>TRADE</div>
+    <div class="nav-item" onclick="navTo('page-evo',this)"><i class="fas fa-dna"></i>EVO</div>
+    <div class="nav-item" onclick="navTo('page-tasks',this)"><i class="fas fa-list-check"></i>TASKS</div>
+    <div class="nav-item" onclick="navTo('page-wallet',this)"><i class="fas fa-wallet"></i>WALLET</div>
+  </nav>
+</div>
+
+<script>
+const BEASTS = [
+  { id: 1, name: "Baby Shark", power: 1, energy: 1000, img: "https://i.ibb.co/m5JxLzfb/1.png", cost: 0 },
+  { id: 2, name: "Killer Shark", power: 6, energy: 3000, img: "https://i.ibb.co/275C3jvN/2.png", cost: 5 },
+  { id: 3, name: "Warrior Shark", power: 18, energy: 8000, img: "https://i.ibb.co/ksRKfVxK/3.png", cost: 25 },
+  { id: 4, name: "Mecha Shark", power: 60, energy: 20000, img: "https://i.ibb.co/SDMHCbnH/4.png", cost: 100 }
+];
+
+let state = JSON.parse(localStorage.getItem('shark_elite_data')) || {
+  bal: 0, ton: 0, nrg: 1000, lv: 1
+};
+
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+// ═══ PARTICLES ═══
+function spawnParticles() {
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 3 + 1;
+    const isGold = Math.random() > 0.5;
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      background:${isGold ? 'var(--gold)' : 'var(--teal)'};
+      opacity:${Math.random()*0.4+0.1};
+      animation-duration:${Math.random()*12+8}s;
+      animation-delay:${Math.random()*5}s;
+    `;
+    document.body.appendChild(p);
+  }
+}
+spawnParticles();
+
+// ═══ TAP ═══
+function handleTap(e) {
+  const s = BEASTS.find(x => x.id === state.lv);
+  if (state.nrg <= 0) return;
+  state.bal += s.power;
+  state.nrg -= 1;
+  updateUI();
+
+  // fly text
+  const fly = document.createElement('div');
+  fly.className = 'tap-fly';
+  fly.innerText = `+${s.power}`;
+  fly.style.left = `${e.clientX}px`;
+  fly.style.top = `${e.clientY - 10}px`;
+  document.body.appendChild(fly);
+  setTimeout(() => fly.remove(), 900);
+
+  // ripple
+  const portal = document.getElementById('portal');
+  const rect = portal.getBoundingClientRect();
+  const rip = document.createElement('div');
+  rip.className = 'ripple';
+  rip.style.left = `${e.clientX - rect.left}px`;
+  rip.style.top = `${e.clientY - rect.top}px`;
+  portal.appendChild(rip);
+  setTimeout(() => rip.remove(), 700);
+
+  tg.HapticFeedback.impactOccurred('medium');
+  save();
+}
+
+// ═══ CHART ═══
+let currentPrice = 0.000100;
+let priceHistory = [];
+
+function updateChart() {
+  const container = document.getElementById('chart-container');
+  container.innerHTML = '';
+  const count = 22;
+  for (let i = 0; i < count; i++) {
+    const isGreen = Math.random() > 0.47;
+    const bodyH = Math.random() * 55 + 8;
+    const wickTop = Math.random() * 20 + 5;
+    const wickBot = Math.random() * 20 + 5;
+    const col = document.createElement('div');
+    col.className = 'candle-col';
+    const color = isGreen ? 'var(--teal)' : 'var(--crimson)';
+    col.innerHTML = `
+      <div class="candle-wick" style="height:${wickTop}px;color:${color}"></div>
+      <div class="candle-body" style="height:${bodyH}px;background:${color}"></div>
+      <div class="candle-wick" style="height:${wickBot}px;color:${color}"></div>
+    `;
+    container.appendChild(col);
+  }
+  const drift = (Math.random() * 0.000006) - 0.000003;
+  currentPrice += drift;
+  if (currentPrice < 0.000050) currentPrice = 0.000050;
+  if (currentPrice > 0.000200) currentPrice = 0.000200;
+  priceHistory.push(currentPrice);
+  if (priceHistory.length > 100) priceHistory.shift();
+  const high = Math.max(...priceHistory);
+  document.getElementById('live-price').innerText = currentPrice.toFixed(6) + (drift > 0 ? ' ↑' : ' ↓');
+  document.getElementById('live-price').style.color = drift > 0 ? 'var(--teal)' : 'var(--crimson)';
+  document.getElementById('price-high').innerText = high.toFixed(6);
+  const vol = (Math.random() * 2 + 0.5).toFixed(1);
+  document.getElementById('vol-24h').innerText = vol + 'M';
+}
+
+// ═══ UI ═══
+function updateUI() {
+  const s = BEASTS.find(x => x.id === state.lv);
+  document.getElementById('top-bal').innerText = Math.floor(state.bal).toLocaleString();
+  document.getElementById('top-ton').innerText = state.ton.toFixed(4);
+  document.getElementById('energy-bar').style.width = (state.nrg / s.energy * 100) + '%';
+  document.getElementById('energy-txt').innerText = `⚡ ${state.nrg} / ${s.energy}`;
+  document.getElementById('shark-body').style.backgroundImage = `url('${s.img}')`;
+  document.getElementById('level-name').innerText = `EVO ${s.id}: ${s.name.toUpperCase()}`;
+}
+
+function navTo(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  if (id === 'page-trade') updateChart();
+}
+
+function renderEvo() {
+  const list = document.getElementById('evo-list');
+  list.innerHTML = '';
+  BEASTS.forEach(s => {
+    const current = state.lv === s.id;
+    const unlocked = state.lv >= s.id;
+    const cls = current ? 'beast-tome current' : (unlocked ? 'beast-tome' : 'beast-tome locked');
+    const action = current
+      ? '<span class="bt-badge">المستوى الحالي</span>'
+      : (unlocked ? '' : `<button class="bt-action" onclick="buyBeast(${s.id},${s.cost})">${s.cost} TON</button>`);
+    list.innerHTML += `
+      <div class="${cls}">
+        <img src="${s.img}">
+        <div class="bt-info">
+          <div class="bt-name">${s.name}</div>
+          <div class="bt-stats">
+            القوة: <span>x${s.power}</span> · الطاقة: <span>${s.energy.toLocaleString()}</span>
+          </div>
+          ${action}
+        </div>
+      </div>
+    `;
+  });
+}
+
+function buyBeast(id, cost) {
+  if (state.ton >= cost) {
+    state.ton -= cost;
+    state.lv = id;
+    save(); updateUI(); renderEvo();
+    tg.showAlert('التطوير تم بنجاح!');
+  } else {
+    tg.showAlert('لا يوجد TON كافٍ!');
+  }
+}
+
+function sellProfit() {
+  if (state.bal < 100) return tg.showAlert('الحد الأدنى 100 شارك للبيع');
+  state.ton += state.bal * currentPrice;
+  state.bal = 0;
+  save(); updateUI();
+  tg.showAlert('الصفقة تمت بنجاح!');
+}
+
+function save() { localStorage.setItem('shark_elite_data', JSON.stringify(state)); }
+
+setInterval(() => {
+  const s = BEASTS.find(x => x.id === state.lv);
+  if (state.nrg < s.energy) { state.nrg += 2; updateUI(); save(); }
+}, 2000);
+
+setInterval(updateChart, 3000);
+
+window.onload = () => { updateUI(); renderEvo(); updateChart(); };
+</script>
+</body>
+</html>
