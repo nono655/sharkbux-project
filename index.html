@@ -1,172 +1,138 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHARKBOX - OFFICIAL</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --blue: #00f2ff; --purple: #bc13fe; --bg: #050a14; --card: rgba(255,255,255,0.07); --green: #2ed573; --red: #ff4757; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; }
-        
-        /* الهيدر العلوي */
-        .top-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,242,255,0.1); }
-        .stat-card { background: var(--card); border-radius: 12px; padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-card .val { font-size: 18px; font-weight: bold; color: var(--blue); }
-        .stat-card .label { font-size: 10px; color: #888; text-transform: uppercase; }
+<script>
+let balance = 0;
+let energy = 1000;
+let maxEnergy = 1000;
+let ton = 0;
 
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 15px 160px; box-sizing: border-box; }
-        .page.active { display: block; }
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-        /* منطقة القرش الرئيسية */
-        .shark-box { height: 40vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .main-shark { width: 260px; transition: transform 0.1s; cursor: pointer; filter: drop-shadow(0 0 20px rgba(0,242,255,0.2)); }
-        .main-shark:active { transform: scale(0.9); }
+// 🔥 TAP SYSTEM + EFFECT
+function tapShark(e) {
+    if (energy <= 0) return;
 
-        /* نظام التداول (Trading) */
-        .trade-container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid var(--blue); margin-top: 10px; }
-        .chart-area { width: 100%; height: 150px; background: #000; border-radius: 10px; margin: 15px 0; position: relative; display: flex; align-items: flex-end; gap: 2px; padding: 5px; overflow: hidden; }
-        .candle { flex: 1; border-radius: 2px; transition: height 0.5s ease; }
-        .trade-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-trade { border: none; padding: 12px; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; }
+    balance += getTapPower();
+    energy -= 1;
 
-        /* القوائم (Tasks, Evo, Wallet) */
-        .list-item { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .icon-circle { width: 45px; height: 45px; background: rgba(0,242,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--blue); }
-        .item-info { flex: 1; }
-        .item-info h4 { margin: 0; font-size: 14px; }
-        .item-info p { margin: 4px 0 0; font-size: 11px; color: #888; }
-        .action-btn { background: var(--blue); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; }
+    showFloatingText(e.clientX, e.clientY, "+1 🦈");
+    shakeShark();
 
-        /* النفيجيشن السفلي */
-        .bottom-nav { position: fixed; bottom: 20px; left: 5%; width: 90%; background: rgba(10,25,47,0.98); border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(0,242,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .nav-link { color: #555; text-align: center; font-size: 10px; cursor: pointer; transition: 0.3s; }
-        .nav-link.active { color: var(--blue); text-shadow: 0 0 10px var(--blue); }
-        .nav-link i { font-size: 22px; display: block; margin-bottom: 4px; }
-    </style>
-</head>
-<body>
+    updateUI();
+    tg.HapticFeedback.impactOccurred('medium');
+}
 
-    <div class="top-bar">
-        <div class="stat-card">
-            <div class="val" id="bal">0.00</div>
-            <div class="label">SHARKI POWER</div>
-        </div>
-        <div class="stat-card">
-            <div class="val" id="ton" style="color:var(--purple)">0.000</div>
-            <div class="label">TON COIN</div>
-        </div>
-    </div>
+// 💥 Floating text
+function showFloatingText(x, y, text) {
+    const el = document.createElement("div");
+    el.innerText = text;
+    el.style.position = "fixed";
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.style.color = "#00f2ff";
+    el.style.fontWeight = "bold";
+    el.style.pointerEvents = "none";
+    el.style.transition = "all 1s ease";
+    document.body.appendChild(el);
 
-    <div id="game-pg" class="page active">
-        <div class="shark-box">
-            <img src="https://i.ibb.co/LkhKq7q/shark1.png" id="shark-img" class="main-shark" onclick="tapShark(event)">
-            <div style="width:80%; margin-top:30px;">
-                <div style="height:8px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;">
-                    <div id="nrg-bar" style="width:100%; height:100%; background:var(--blue); box-shadow: 0 0 10px var(--blue);"></div>
-                </div>
-                <p id="nrg-text" style="text-align:center; font-size:11px; color:#64748b; margin-top:10px;">ENERGY: 1000/1000</p>
-            </div>
-        </div>
-    </div>
+    setTimeout(() => {
+        el.style.top = (y - 50) + "px";
+        el.style.opacity = 0;
+    }, 10);
 
-    <div id="trade-pg" class="page">
-        <h3 style="text-align:center; margin-bottom:20px; color:var(--blue)">SHARKI EXCHANGE</h3>
-        <div class="trade-container">
-            <div style="display:flex; justify-content:space-between; font-size:12px;">
-                <span>Market Price:</span>
-                <span id="live-price" style="color:var(--green)">0.000105 TON</span>
-            </div>
-            <div class="chart-area" id="chart"></div>
-            <div class="trade-btns">
-                <button class="btn-trade" style="background:var(--green)" onclick="trade('buy')">BUY</button>
-                <button class="btn-trade" style="background:var(--red)" onclick="trade('sell')">SELL</button>
-            </div>
-        </div>
-    </div>
+    setTimeout(() => el.remove(), 1000);
+}
 
-    <div id="evo-pg" class="page">
-        <h3 style="color:var(--blue)">SHARK EVOLUTION</h3>
-        <div class="list-item">
-            <img src="https://i.ibb.co/LkhKq7q/shark1.png" width="50">
-            <div class="item-info"><h4>Level 1: Rookie</h4><p>Power: x1 | Limit: 1000</p></div>
-            <span style="color:var(--green); font-size:10px;">ACTIVE</span>
-        </div>
-        <div class="list-item">
-            <img src="https://i.ibb.co/K2YgY0G/shark2.png" width="50">
-            <div class="item-info"><h4>Level 2: Fighter</h4><p>Power: x3 | Limit: 2500</p></div>
-            <button class="action-btn">5 TON</button>
-        </div>
-        </div>
+// 🎯 قوة الضغط (قابلة للتطوير)
+function getTapPower() {
+    return 1; // تقدر تربطها بالترقيات
+}
 
-    <div id="wallet-pg" class="page">
-        <h3 style="color:var(--blue)">FINANCIAL VAULT</h3>
-        <div class="list-item" onclick="showAction('Deposit')">
-            <div class="icon-circle"><i class="fas fa-arrow-down"></i></div>
-            <div class="item-info"><h4>Deposit TON</h4><p>Add funds to buy upgrades</p></div>
-            <i class="fas fa-chevron-right"></i>
-        </div>
-        <div class="list-item" onclick="showAction('Withdraw')">
-            <div class="icon-circle"><i class="fas fa-paper-plane"></i></div>
-            <div class="item-info"><h4>Withdraw TON</h4><p>Send earnings to your wallet</p></div>
-            <i class="fas fa-chevron-right"></i>
-        </div>
-    </div>
+// ⚡ اهتزاز القرش
+function shakeShark() {
+    const shark = document.getElementById("shark-img");
+    shark.style.transform = "scale(0.9)";
+    setTimeout(() => shark.style.transform = "scale(1)", 100);
+}
 
-    <nav class="bottom-nav">
-        <div class="nav-link active" onclick="tab('game-pg', this)"><i class="fas fa-fist-raised"></i>TAP</div>
-        <div class="nav-link" onclick="tab('trade-pg', this)"><i class="fas fa-chart-line"></i>TRADE</div>
-        <div class="nav-link" onclick="tab('evo-pg', this)"><i class="fas fa-dna"></i>EVO</div>
-        <div class="nav-link" onclick="tab('wallet-pg', this)"><i class="fas fa-wallet"></i>VAULT</div>
-    </nav>
+// 🔋 ENERGY REGEN (مهم بزاف)
+setInterval(() => {
+    if (energy < maxEnergy) {
+        energy += 2;
+        if (energy > maxEnergy) energy = maxEnergy;
+        updateUI();
+    }
+}, 1000);
 
-    <script>
-        let balance = 0; let energy = 1000; let ton = 0;
-        const tg = window.Telegram.WebApp; tg.expand();
+// 📊 تحديث الواجهة
+function updateUI() {
+    document.getElementById('bal').innerText = balance.toFixed(0);
+    document.getElementById('ton').innerText = ton.toFixed(3);
+    document.getElementById('nrg-bar').style.width = (energy / maxEnergy * 100) + "%";
+    document.getElementById('nrg-text').innerText = `ENERGY: ${energy}/${maxEnergy}`;
+}
 
-        function tapShark(e) {
-            if(energy <= 0) return;
-            balance += 1; energy -= 1;
-            updateUI();
-            tg.HapticFeedback.impactOccurred('medium');
+// 🔥 MARKET SYSTEM (أفضل)
+let price = 0.000100;
+
+setInterval(() => {
+    let change = (Math.random() - 0.5) * 0.00001;
+    price += change;
+
+    if (price < 0.00005) price = 0.00005;
+
+    document.getElementById('live-price').innerText = price.toFixed(6) + " TON";
+}, 2000);
+
+// 💰 BUY / SELL
+function trade(type) {
+    if (type === "sell") {
+        if (balance < 100) {
+            alert("❌ Minimum 100 Shark");
+            return;
         }
 
-        function updateUI() {
-            document.getElementById('bal').innerText = balance.toFixed(2);
-            document.getElementById('nrg-bar').style.width = (energy/10) + '%';
-            document.getElementById('nrg-text').innerText = `ENERGY: ${energy}/1000`;
-        }
+        let earned = balance * price;
+        ton += earned;
+        balance = 0;
 
-        function tab(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
+        alert("💰 Sold! +" + earned.toFixed(4) + " TON");
+    }
 
-        // نظام التداول الواقعي
-        const chart = document.getElementById('chart');
-        function createChart() {
-            for(let i=0; i<40; i++) {
-                let c = document.createElement('div');
-                c.className = 'candle';
-                c.style.height = Math.random() * 80 + 10 + '%';
-                c.style.background = Math.random() > 0.5 ? '#2ed573' : '#ff4757';
-                chart.appendChild(c);
-            }
-        }
-        setInterval(() => {
-            const candles = document.querySelectorAll('.candle');
-            candles.forEach(c => {
-                c.style.height = Math.random() * 80 + 10 + '%';
-                c.style.background = Math.random() > 0.5 ? '#2ed573' : '#ff4757';
-            });
-            let p = (0.0001 + (Math.random() * 0.00002)).toFixed(6);
-            document.getElementById('live-price').innerText = p + " TON";
-        }, 2000);
+    if (type === "buy") {
+        alert("🚧 Coming soon...");
+    }
 
-        createChart();
-    </script>
-</body>
-</html>
+    updateUI();
+}
+
+// 📂 Navigation
+function tab(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+}
+
+// 📊 Chart
+const chart = document.getElementById('chart');
+
+function createChart() {
+    for (let i = 0; i < 40; i++) {
+        let c = document.createElement('div');
+        c.className = 'candle';
+        chart.appendChild(c);
+    }
+}
+
+setInterval(() => {
+    const candles = document.querySelectorAll('.candle');
+    candles.forEach(c => {
+        let h = Math.random() * 80 + 10;
+        c.style.height = h + "%";
+        c.style.background = Math.random() > 0.5 ? "#2ed573" : "#ff4757";
+    });
+}, 2000);
+
+createChart();
+updateUI();
+</script>
