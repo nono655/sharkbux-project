@@ -3,277 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHARK BUCKS PRO</title>
+    <title>SHARK BUCKS - THE BEAST EDITION</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Cairo:wght@400;700&display=swap');
 
         :root {
-            --binance-yellow: #FCD535; --binance-black: #0B0E11; --binance-gray: #1E2329;
-            --green: #0ecb81; --red: #f6465d; --blue: #00f2ff;
+            --yellow: #FCD535; --dark: #0B0E11; --card: #1E2329;
+            --green: #0ecb81; --red: #f6465d; --neon: #00f2ff;
         }
 
         body {
-            background-color: var(--binance-black); color: white;
-            font-family: 'Cairo', sans-serif; margin: 0; padding: 0; overflow: hidden;
+            background-color: var(--dark); color: white;
+            font-family: 'Cairo', sans-serif; margin: 0; overflow: hidden;
         }
 
-        /* --- Header: Binance Style --- */
-        .top-header {
-            display: flex; justify-content: space-between; padding: 20px;
-            background: linear-gradient(180deg, #161a1e 0%, var(--binance-black) 100%);
-            border-bottom: 1px solid #2b3139;
+        /* --- Header --- */
+        .header {
+            padding: 15px 20px; background: #161a1e;
+            border-bottom: 1px solid #2b3139; display: flex; justify-content: space-between;
         }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .balance-label { font-size: 10px; color: #848e9c; text-transform: uppercase; }
-        .balance-amount { font-size: 20px; font-weight: 700; font-family: 'Orbitron'; color: var(--binance-yellow); }
+        .bal-val { font-family: 'Orbitron'; color: var(--yellow); font-size: 18px; font-weight: 900; }
 
-        /* --- Global Layout --- */
-        .container { height: 100vh; overflow-y: auto; padding-bottom: 120px; box-sizing: border-box; }
+        /* --- Pages Layout --- */
+        .content { height: 100vh; overflow-y: auto; padding-bottom: 100px; box-sizing: border-box; }
         .page { display: none; padding: 15px; }
-        .page.active { display: block; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .page.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- Main Game: Power & Shark --- */
-        .shark-display { height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .shark-glow { position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(0,242,255,0.15) 0%, transparent 70%); z-index: 1; }
-        .shark-img { width: 300px; height: 300px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 2; transition: transform 0.05s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        .shark-img:active { transform: scale(0.9); }
+        /* --- Shark Main --- */
+        .shark-stage { height: 45vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .shark-aura { position: absolute; width: 280px; height: 280px; background: radial-gradient(circle, rgba(0,242,255,0.2) 0%, transparent 75%); border-radius: 50%; z-index: 1; }
+        .shark-main-img { width: 320px; height: 320px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 2; transition: 0.1s; filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)); }
+        .shark-main-img:active { transform: scale(0.92); }
 
-        /* --- Binance Chart Dashboard --- */
-        .binance-card { background: var(--binance-gray); border-radius: 4px; padding: 15px; border-top: 2px solid var(--binance-yellow); }
-        .chart-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-family: 'Orbitron'; }
-        .trading-view {
-            width: 100%; height: 200px; background: #161a1e; position: relative; 
-            border-left: 1px solid #2b3139; border-bottom: 1px solid #2b3139;
-            display: flex; align-items: flex-end; gap: 6px; padding: 10px; overflow: hidden;
+        /* --- Trading Binance Style --- */
+        .binance-box { background: var(--card); border-radius: 8px; padding: 15px; border: 1px solid #2b3139; }
+        .chart-v {
+            width: 100%; height: 220px; background: #161a1e; border-radius: 4px;
+            margin: 10px 0; display: flex; align-items: flex-end; gap: 4px; padding: 10px; overflow: hidden; position: relative;
         }
-        .candle { position: relative; flex: 1; min-width: 8px; }
-        .candle-body { width: 100%; border-radius: 1px; position: relative; }
-        .candle-wick { position: absolute; width: 1px; height: 120%; left: 50%; top: -10%; background: inherit; }
+        .candle { flex: 1; position: relative; min-width: 10px; transition: 0.5s ease-in-out; }
+        .c-body { width: 100%; border-radius: 1px; }
+        .c-wick { position: absolute; width: 1px; height: 130%; left: 45%; top: -15%; background: inherit; opacity: 0.7; }
         
-        .trade-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-binance { border: none; padding: 12px; border-radius: 4px; font-weight: 700; color: #fff; cursor: pointer; }
-        .btn-buy { background-color: var(--green); }
-        .btn-sell { background-color: var(--red); }
-
-        /* --- Tasks & Missions --- */
-        .task-list { display: flex; flex-direction: column; gap: 10px; }
-        .task-item {
-            background: #1e2329; border-radius: 8px; padding: 15px;
-            display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid #2b3139;
-        }
-        .task-details h4 { margin: 0; font-size: 14px; color: #eaecef; }
-        .task-details p { margin: 5px 0 0; font-size: 11px; color: #848e9c; }
-        .reward-badge { color: var(--binance-yellow); font-weight: bold; font-size: 12px; }
-
-        /* --- Evolution: Powerful Cards --- */
-        .evo-grid { display: flex; flex-direction: column; gap: 20px; }
+        /* --- Evo Cards (Powerful) --- */
         .evo-card {
-            background: linear-gradient(135deg, #1e2329 0%, #0b0e11 100%);
-            border: 1px solid #2b3139; border-radius: 16px; padding: 25px;
-            display: flex; align-items: center; gap: 20px; position: relative;
-            overflow: hidden;
+            background: linear-gradient(145deg, #1e2329, #0b0e11);
+            border: 1px solid #333; border-radius: 20px; padding: 20px;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;
         }
-        .evo-card.active { border-color: var(--binance-yellow); box-shadow: 0 0 20px rgba(252,213,53,0.1); }
-        .evo-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(252,213,53,0.05) 0%, transparent 70%); }
-        .evo-img-small { width: 100px; height: 100px; background-size: contain; background-repeat: no-repeat; z-index: 2; }
+        .evo-card.active { border-color: var(--neon); box-shadow: 0 0 15px rgba(0,242,255,0.2); }
+        .evo-img-v { width: 110px; height: 110px; background-size: contain; background-repeat: no-repeat; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.8)); }
 
-        /* --- Bottom Nav --- */
-        .navbar {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
+        /* --- Navbar (5 Tabs) --- */
+        .nav {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
             background: #161a1e; border-top: 1px solid #2b3139;
             display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
-        .nav-item { color: #848e9c; text-align: center; font-size: 10px; text-decoration: none; }
-        .nav-item.active { color: var(--binance-yellow); }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .nav-link { color: #848e9c; text-align: center; font-size: 9px; cursor: pointer; transition: 0.3s; }
+        .nav-link.active { color: var(--yellow); }
+        .nav-link i { font-size: 20px; display: block; margin-bottom: 5px; }
 
-        /* --- Floating Text --- */
-        .tap-anim { position: absolute; color: var(--binance-yellow); font-weight: 900; pointer-events: none; animation: tapMove 0.6s ease-out forwards; }
-        @keyframes tapMove { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
+        /* --- Animations --- */
+        .tap-pop { position: absolute; color: var(--yellow); font-weight: 900; font-size: 24px; pointer-events: none; animation: pop 0.7s ease-out; }
+        @keyframes pop { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
-    <div class="top-header">
-        <div class="user-info">
-            <i class="fas fa-user-circle" style="font-size: 30px; color: var(--binance-yellow);"></i>
-            <div>
-                <div class="balance-label">Total Shark Power</div>
-                <div class="balance-amount" id="main-bal">0.00</div>
+    <div class="header">
+        <div><span style="font-size: 10px; color: #848e9c;">SHARK POWER</span><br><span id="top-bal" class="bal-val">0.00</span></div>
+        <div style="text-align: right;"><span style="font-size: 10px; color: #848e9c;">WALLET (TON)</span><br><span id="top-ton" class="bal-val" style="color:white">0.0000</span></div>
+    </div>
+
+    <div class="content">
+        <div id="p-home" class="page active">
+            <div class="shark-stage">
+                <div class="shark-aura"></div>
+                <div id="main-shark" class="shark-main-img" onclick="handleTap(event)"></div>
+                <div style="width: 85%; margin-top: 25px;">
+                    <div style="height: 8px; background: #2b3139; border-radius: 20px; overflow: hidden;">
+                        <div id="energy-bar" style="width: 100%; height: 100%; background: var(--yellow); box-shadow: 0 0 10px var(--yellow);"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 10px; color: #848e9c;">
+                        <span id="energy-txt">⚡ 1000 / 1000</span>
+                        <span id="rank-txt" style="color:var(--yellow); font-weight:bold;">LEVEL 1</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <div style="text-align: right;">
-            <div class="balance-label">TON Wallet</div>
-            <div class="balance-amount" id="ton-bal" style="color: #fff; font-size: 16px;">0.0000</div>
+
+        <div id="p-trade" class="page">
+            <div class="binance-box">
+                <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; margin-bottom: 10px;">
+                    <span>SHARK / TON</span>
+                    <span id="price-tag" style="color: var(--green);">0.000100</span>
+                </div>
+                <div class="chart-v" id="chart-v"></div>
+                <button onclick="sellAll()" style="width:100%; background:var(--red); color:white; border:none; padding:15px; border-radius:4px; font-weight:bold; font-size:16px;">SELL ALL SHARK</button>
+            </div>
+        </div>
+
+        <div id="p-evo" class="page">
+            <h3 style="color: var(--yellow); margin-bottom: 20px; text-align: center;">EVOLUTION LAB</h3>
+            <div id="evo-container"></div>
+        </div>
+
+        <div id="p-tasks" class="page">
+            <h3 style="color: var(--yellow); border-left: 4px solid var(--yellow); padding-left: 10px;">MISSIONS</h3>
+            <div class="evo-card" style="padding: 15px;">
+                <div style="flex: 1;">
+                    <h4 style="margin: 0;">Join Official Channel</h4>
+                    <p style="font-size: 11px; color: #848e9c;">+ 1,500 Shark Power</p>
+                </div>
+                <button style="background:var(--yellow); border:none; padding:8px 20px; border-radius:5px; font-weight:bold;">GO</button>
+            </div>
+        </div>
+
+        <div id="p-wallet" class="page">
+            <h3 style="color: var(--yellow);">VAULT</h3>
+            <div class="evo-card" onclick="tg.showAlert('Deposit TON Address: xxxxxxx')">
+                <i class="fas fa-arrow-down" style="color:var(--green); font-size: 24px;"></i>
+                <div style="flex:1"><h4>Deposit TON</h4><p>Increase your balance instantly</p></div>
+            </div>
+            <div class="evo-card" onclick="tg.showAlert('Withdraw functionality connected to Bot API')">
+                <i class="fas fa-paper-plane" style="color:var(--red); font-size: 24px;"></i>
+                <div style="flex:1"><h4>Withdraw TON</h4><p>Min: 0.5 TON</p></div>
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        
-        <div id="home" class="page active">
-            <div class="shark-display">
-                <div class="shark-glow"></div>
-                <div id="shark-trigger" class="shark-img" onclick="tapAction(event)"></div>
-                
-                <div style="width: 80%; margin-top: 20px;">
-                    <div style="height: 6px; background: #2b3139; border-radius: 10px; overflow: hidden;">
-                        <div id="nrg-bar" style="width: 100%; height: 100%; background: var(--binance-yellow); transition: 0.2s;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px; color: #848e9c;">
-                        <span id="nrg-val">⚡ 1000 / 1000</span>
-                        <span id="rank-name">ROOKIE</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="trade" class="page">
-            <div class="binance-card">
-                <div class="chart-header">
-                    <span style="color: #eaecef;">SHARK / TON</span>
-                    <span id="live-price" style="color: var(--green);">0.000105 ↑</span>
-                </div>
-                <div class="trading-view" id="chart-area"></div>
-                
-                <div class="trade-actions">
-                    <button class="btn-binance btn-buy" onclick="tg.showAlert('ميزة الشراء ستتوفر قريباً!')">BUY</button>
-                    <button class="btn-binance btn-sell" onclick="sellAll()">SELL</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="tasks" class="page">
-            <h3 style="color: var(--binance-yellow); border-left: 4px solid var(--binance-yellow); padding-left: 10px;">TASKS CENTER</h3>
-            <div class="task-list">
-                <div class="task-item">
-                    <div class="task-details">
-                        <h4>Join Telegram Channel</h4>
-                        <p>Join our news channel for bonuses</p>
-                        <div class="reward-badge">+ 1,000 Shark</div>
-                    </div>
-                    <button class="btn-binance btn-buy" style="padding: 8px 15px;">START</button>
-                </div>
-                <div class="task-item">
-                    <div class="task-details">
-                        <h4>Invite 5 Friends</h4>
-                        <p>Grow your shark army</p>
-                        <div class="reward-badge">+ 5,000 Shark</div>
-                    </div>
-                    <button class="btn-binance btn-buy" style="padding: 8px 15px;">INVITE</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="evo" class="page">
-            <h3 style="color: var(--binance-yellow); text-align: center;">SHARK EVOLUTION</h3>
-            <div class="evo-grid" id="evo-container"></div>
-        </div>
-
-    </div>
-
-    <nav class="navbar">
-        <a href="#" class="nav-item active" onclick="showPage('home', this)"><i class="fas fa-home"></i>HOME</a>
-        <a href="#" class="nav-item" onclick="showPage('trade', this)"><i class="fas fa-chart-line"></i>MARKET</a>
-        <a href="#" class="nav-item" onclick="showPage('evo', this)"><i class="fas fa-dna"></i>EVOLUTION</a>
-        <a href="#" class="nav-item" onclick="showPage('tasks', this)"><i class="fas fa-tasks"></i>TASKS</a>
+    <nav class="nav">
+        <div class="nav-link active" onclick="tab('p-home', this)"><i class="fas fa-hand-fist"></i>TAP</div>
+        <div class="nav-link" onclick="tab('p-trade', this)"><i class="fas fa-chart-line"></i>TRADE</div>
+        <div class="nav-link" onclick="tab('p-evo', this)"><i class="fas fa-dna"></i>EVO</div>
+        <div class="nav-link" onclick="tab('p-tasks', this)"><i class="fas fa-check-double"></i>TASKS</div>
+        <div class="nav-link" onclick="tab('p-wallet', this)"><i class="fas fa-wallet"></i>WALLET</div>
     </nav>
 
     <script>
         const SHARKS = [
             { id: 1, name: "Baby Shark", power: 1, energy: 1000, img: "https://i.ibb.co/m5JxLzfb/1.png", price: 0 },
-            { id: 2, name: "Fighter Shark", power: 4, energy: 3000, img: "https://i.ibb.co/275C3jvN/2.png", price: 5 },
-            { id: 3, name: "Warrior Shark", power: 12, energy: 6000, img: "https://i.ibb.co/ksRKfVxK/3.png", price: 15 },
-            { id: 4, name: "Armor Shark", power: 35, energy: 12000, img: "https://i.ibb.co/SDMHCbnH/4.png", price: 50 }
+            { id: 2, name: "Fighter Shark", power: 5, energy: 2500, img: "https://i.ibb.co/275C3jvN/2.png", price: 5 },
+            { id: 3, name: "Warrior Shark", power: 15, energy: 6000, img: "https://i.ibb.co/ksRKfVxK/3.png", price: 20 },
+            { id: 4, name: "Alpha Shark", power: 50, energy: 15000, img: "https://i.ibb.co/SDMHCbnH/4.png", price: 75 }
         ];
 
-        let state = JSON.parse(localStorage.getItem('shark_pro_state')) || {
-            balance: 0, ton: 0, energy: 1000, level: 1
+        let state = JSON.parse(localStorage.getItem('shark_ultra_data')) || {
+            bal: 0, ton: 0, nrg: 1000, lv: 1
         };
 
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- Tap Functionality ---
-        function tapAction(e) {
-            const current = SHARKS.find(s => s.id === state.level);
-            if (state.energy <= 0) return;
-
-            state.balance += current.power;
-            state.energy -= 1;
+        function handleTap(e) {
+            const s = SHARKS.find(x => x.id === state.lv);
+            if (state.nrg <= 0) return;
+            state.bal += s.power;
+            state.nrg -= 1;
             updateUI();
             
-            // Animation
-            const tap = document.createElement('div');
-            tap.className = 'tap-anim';
-            tap.innerText = `+${current.power}`;
-            tap.style.left = `${e.clientX}px`;
-            tap.style.top = `${e.clientY}px`;
-            document.body.appendChild(tap);
-            setTimeout(() => tap.remove(), 600);
+            const p = document.createElement('div');
+            p.className = 'tap-pop';
+            p.innerText = `+${s.power}`;
+            p.style.left = `${e.clientX}px`; p.style.top = `${e.clientY}px`;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 700);
 
             tg.HapticFeedback.impactOccurred('medium');
             save();
         }
 
-        // --- Real Binance-Style Chart ---
-        function renderChart() {
-            const area = document.getElementById('chart-area');
-            area.innerHTML = '';
-            for (let i = 0; i < 25; i++) {
-                const isUp = Math.random() > 0.4;
-                const candle = document.createElement('div');
-                candle.className = 'candle';
-                
-                const bodyHeight = Math.random() * 60 + 10;
+        // --- نظام تداول بايننس (0.001 ذبذبة) ---
+        let basePrice = 0.000100;
+        function updateTrade() {
+            const chart = document.getElementById('chart-v');
+            chart.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const isUp = Math.random() > 0.45;
+                const c = document.createElement('div');
+                c.className = 'candle';
                 const body = document.createElement('div');
-                body.className = 'candle-body';
-                body.style.height = bodyHeight + '%';
+                body.className = 'c-body';
+                body.style.height = (Math.random() * 60 + 10) + '%';
                 body.style.backgroundColor = isUp ? 'var(--green)' : 'var(--red)';
-                
                 const wick = document.createElement('div');
-                wick.className = 'candle-wick';
-                
-                body.appendChild(wick);
-                candle.appendChild(body);
-                area.appendChild(candle);
+                wick.className = 'c-wick';
+                body.appendChild(wick); c.appendChild(body); chart.appendChild(c);
             }
+            
+            // ذبذبة السعر بـ 0.001 سنت
+            let change = (Math.random() * 0.000005) - 0.000002;
+            basePrice += change;
+            const tag = document.getElementById('price-tag');
+            tag.innerText = basePrice.toFixed(6);
+            tag.style.color = change > 0 ? 'var(--green)' : 'var(--red)';
         }
+        setInterval(updateTrade, 3000);
 
-        // --- UI Updates ---
         function updateUI() {
-            const shark = SHARKS.find(s => s.id === state.level);
-            document.getElementById('main-bal').innerText = state.balance.toLocaleString();
-            document.getElementById('ton-bal').innerText = state.ton.toFixed(4);
-            document.getElementById('nrg-bar').style.width = (state.energy / shark.energy * 100) + '%';
-            document.getElementById('nrg-val').innerText = `⚡ ${state.energy} / ${shark.energy}`;
-            document.getElementById('shark-trigger').style.backgroundImage = `url('${shark.img}')`;
-            document.getElementById('rank-name').innerText = shark.name.toUpperCase();
+            const s = SHARKS.find(x => x.id === state.lv);
+            document.getElementById('top-bal').innerText = state.bal.toLocaleString();
+            document.getElementById('top-ton').innerText = state.ton.toFixed(4);
+            document.getElementById('energy-bar').style.width = (state.nrg / s.energy * 100) + '%';
+            document.getElementById('energy-txt').innerText = `⚡ ${state.nrg} / ${s.energy}`;
+            document.getElementById('main-shark').style.backgroundImage = `url('${s.img}')`;
+            document.getElementById('rank-txt').innerText = s.name.toUpperCase();
         }
 
-        function showPage(id, el) {
+        function tab(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
-            if (id === 'trade') renderChart();
+            if (id === 'p-trade') updateTrade();
         }
 
         function renderEvo() {
             const container = document.getElementById('evo-container');
             container.innerHTML = '';
             SHARKS.forEach(s => {
-                const isCurrent = state.level === s.id;
+                const active = state.lv === s.id;
                 container.innerHTML += `
-                    <div class="evo-card ${isCurrent ? 'active' : ''}">
-                        <div class="evo-img-small" style="background-image: url('${s.img}')"></div>
-                        <div style="flex: 1; z-index: 2;">
-                            <h4 style="margin:0; color: var(--binance-yellow);">${s.name}</h4>
-                            <p style="font-size: 11px; color: #848e9c;">Power: x${s.power} | Energy: ${s.energy}</p>
-                            ${isCurrent ? '<b style="color:var(--green)">CURRENT</b>' : `<button class="btn-binance btn-buy" onclick="buyEvo(${s.id}, ${s.price})" style="padding: 5px 15px; margin-top: 5px;">${s.price} TON</button>`}
+                    <div class="evo-card ${active ? 'active' : ''}">
+                        <div class="evo-img-v" style="background-image: url('${s.img}')"></div>
+                        <div style="flex:1">
+                            <h4 style="margin:0; color:var(--yellow)">${s.name}</h4>
+                            <p style="font-size:11px; color:#848e9c">Power: x${s.power} | Energy: ${s.energy}</p>
+                            ${active ? '<b style="color:var(--green)">OWNED</b>' : `<button onclick="buyEvo(${s.id}, ${s.price})" style="background:var(--yellow); border:none; padding:5px 15px; border-radius:5px; font-weight:bold; margin-top:5px;">${s.price} TON</button>`}
                         </div>
                     </div>
                 `;
@@ -282,36 +243,27 @@
 
         function buyEvo(id, price) {
             if (state.ton >= price) {
-                state.ton -= price;
-                state.level = id;
+                state.ton -= price; state.lv = id;
                 save(); updateUI(); renderEvo();
                 tg.showAlert('Evolution Complete!');
-            } else {
-                tg.showAlert('Not enough TON!');
-            }
+            } else { tg.showAlert('Not enough TON!'); }
         }
 
         function sellAll() {
-            if (state.balance < 100) return tg.showAlert('Min 100 Shark to sell');
-            let price = 0.000105;
-            state.ton += state.balance * price;
-            state.balance = 0;
-            save(); updateUI();
-            tg.showAlert('Sold successfully!');
+            if (state.bal < 100) return tg.showAlert('Min sell: 100 Shark');
+            state.ton += state.bal * basePrice;
+            state.bal = 0; save(); updateUI();
+            tg.showAlert('Sold for TON!');
         }
 
-        function save() { localStorage.setItem('shark_pro_state', JSON.stringify(state)); }
+        function save() { localStorage.setItem('shark_ultra_data', JSON.stringify(state)); }
 
-        // --- Energy Regen ---
         setInterval(() => {
-            const shark = SHARKS.find(s => s.id === state.level);
-            if (state.energy < shark.energy) {
-                state.energy += 1;
-                updateUI();
-            }
-        }, 1500);
+            const s = SHARKS.find(x => x.id === state.lv);
+            if (state.nrg < s.energy) { state.nrg += 1; updateUI(); }
+        }, 1000);
 
-        window.onload = () => { updateUI(); renderEvo(); renderChart(); };
+        window.onload = () => { updateUI(); renderEvo(); updateTrade(); };
     </script>
 </body>
 </html>
