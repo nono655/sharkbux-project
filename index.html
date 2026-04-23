@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SharkBox</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --p: #0088cc; --bg: #0a0e14; --c: #161b22; --t: #fff; }
+        body { background: var(--bg); color: var(--t); font-family: sans-serif; margin: 0; direction: rtl; }
+        .page { display: none; padding: 20px; animation: f 0.3s; }
+        .page.active { display: block; }
+        @keyframes f { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: var(--c); border-radius: 15px; padding: 20px; margin-bottom: 15px; text-align: center; border: 1px solid #30363d; }
+        .btn { background: var(--p); color: #fff; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--c); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #30363d; }
+        .nav-i { text-align: center; font-size: 12px; color: #8b949e; cursor: pointer; flex: 1; }
+        .nav-i.active { color: var(--p); }
+        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; }
+    </style>
+</head>
+<body>
+    <div id="h" class="page active">
+        <div class="card">
+            <i class="fas fa-shark fa-3x" style="color:#0088cc"></i>
+            <h2>مرحباً <span id="un">أنس</span> 🦈</h2>
+            <p>رصيدك: <span id="bal">0.00</span></p>
+        </div>
+        <div class="card"><h3>إحصائياتك اليومية</h3><p>المهام المكتملة: 0</p></div>
+    </div>
+
+    <div id="t" class="page">
+        <h2>المهام المتاحة</h2>
+        <div class="card"><p>مشاركة البوت مع أصدقائك</p><button class="btn">+ 100 نقطة</button></div>
+        <div class="card"><p>انضم لقناة التحديثات</p><button class="btn">+ 50 نقطة</button></div>
+    </div>
+
+    <div id="a" class="page">
+        <div class="card" style="border-color: #ff4500;">
+            <h2 style="color:#ff4500">⚙️ الإدارة</h2>
+            <p>إجمالي المستخدمين: <span id="tu">1</span></p>
+            <input type="text" placeholder="اكتب رسالة للجميع...">
+            <button class="btn" style="background:#ff4500">إرسال إذاعة</button>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-i active" onclick="p('h',this)"><i class="fas fa-home"></i><br>الرئيسية</div>
+        <div class="nav-i" onclick="p('t',this)"><i class="fas fa-tasks"></i><br>المهام</div>
+        <div id="an" class="nav-i" style="display:none" onclick="p('a',this)"><i class="fas fa-user-shield"></i><br>الإدارة</div>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        const user = tg.initDataUnsafe.user;
+        if(user) {
+            document.getElementById('un').innerText = user.first_name;
+            if(user.id === 5122156681) { // معرفك الخاص
+                document.getElementById('an').style.display = 'block';
+            }
+        }
+        function p(id, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-i').forEach(x => x.classList.remove('active'));
+            el.classList.add('active');
+        }
+    </script>
+</body>
+</html>
