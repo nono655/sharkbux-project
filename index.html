@@ -3,263 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHARKBOX ULTRA - THE EVOLUTION</title>
+    <title>SHARKBOX - PRO TRADER</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --neon-blue: #00f2ff;
-            --neon-purple: #bc13fe;
-            --danger-red: #ff003c;
-            --dark-core: #02060c;
-            --card-glass: rgba(255, 255, 255, 0.03);
-            --gold: #f1c40f;
-        }
-
-        body {
-            background: radial-gradient(circle at top, #0a192f 0%, var(--dark-core) 100%);
-            color: white; font-family: 'Orbitron', sans-serif;
-            margin: 0; padding: 0; overflow: hidden; user-select: none;
-        }
-
-        /* Stats Header - Cyber Style */
-        .top-stats {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 25px 20px;
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(15px);
-            border-bottom: 2px solid rgba(0, 242, 255, 0.1);
-        }
-        .stat-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; text-align: center; }
-        .val { font-size: 26px; font-weight: 900; }
-        .sharki { color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); }
-        .ton { color: var(--neon-purple); text-shadow: 0 0 15px var(--neon-purple); }
-        .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 2px; }
-
-        /* Pages System */
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 15px 150px; box-sizing: border-box; }
-        .page.active { display: block; animation: neonSlideIn 0.3s forwards; }
-        @keyframes neonSlideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* === GAME ZONE: Realistic Shark Punching === */
-        .game-zone { height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .shark-hitbox { position: relative; transition: transform 0.05s; cursor: pointer; }
-        .real-shark-img {
-            width: 280px; height: 280px;
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            filter: drop-shadow(0 0 40px rgba(0,212,255,0.4));
-            animation: swim 4s ease-in-out infinite;
-        }
-        @keyframes swim { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-15px) rotate(3deg); } }
+        :root { --blue: #00f2ff; --purple: #bc13fe; --bg: #02060c; --card: rgba(255,255,255,0.05); --red: #ff4757; --green: #2ed573; }
+        body { background: var(--bg); color: white; font-family: 'Orbitron', sans-serif; margin: 0; overflow: hidden; }
         
-        .shark-hitbox.hit { transform: scale(0.9) rotateX(15deg); filter: brightness(1.5) drop-shadow(0 0 50px var(--danger-red)) !important; }
+        /* Header Stats */
+        .top-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: rgba(0,0,0,0.5); }
+        .s-box { background: var(--card); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(0,242,255,0.1); }
+        .s-box .val { font-size: 18px; font-weight: 900; color: var(--blue); }
+        .s-box .lab { font-size: 9px; color: #64748b; margin-top: 4px; }
 
-        .energy-hud { width: 80%; text-align: center; margin-top: 25px; }
-        .bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-blue), #fff); box-shadow: 0 0 10px var(--neon-blue); width: 100%; transition: width 0.1s; }
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px 15px 150px; }
+        .page.active { display: block; }
 
-        /* === EVOLUTION (PLANS) PAGE - Massive & Wide === */
-        .evolution-grid { display: flex; flex-direction: column; gap: 20px; }
-        
-        .evo-card {
-            background: var(--card-glass); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px; padding: 25px;
-            display: flex; align-items: center; gap: 25px;
-            position: relative; transition: 0.3s;
-        }
-        .evo-card.active { border-color: var(--neon-blue); background: rgba(0, 242, 255, 0.04); box-shadow: 0 0 20px rgba(0,242,255,0.2); }
-        .evo-card.locked { opacity: 0.6; }
+        /* Game Section - Real Muscle Sharks */
+        .game-area { height: 45vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .shark-container { position: relative; transition: transform 0.05s; }
+        .shark-container.hit { transform: scale(0.85); filter: brightness(1.2); }
+        .main-shark-img { width: 300px; height: 300px; background-size: contain; background-repeat: no-repeat; background-position: center; }
 
-        .evo-shark-preview { width: 100px; height: 100px; background-size: contain; background-repeat: no-repeat; background-position: center; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-        .evo-details { flex: 1; }
-        .evo-details h3 { margin: 0; font-size: 18px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .evo-details h3.glow { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-        .evo-specs { font-size: 11px; color: #aaa; margin: 8px 0; }
-        
-        .price-tag { color: var(--gold); font-weight: 900; font-size: 14px; margin-right: 15px; }
-        .btn-upgrade { background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--neon-blue); padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-upgrade:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
-        .current-label { color: var(--gold); font-size: 11px; font-weight: bold; position: absolute; top: 15px; right: 20px; text-transform: uppercase;}
+        /* Trading Dashboard (New!) */
+        .chart-v { width: 100%; height: 120px; background: #050a14; border-radius: 10px; margin: 15px 0; position: relative; overflow: hidden; border: 1px solid #1e293b; }
+        .candle { width: 4px; position: absolute; bottom: 20%; border-radius: 2px; transition: 0.5s; }
+        .trade-box { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid var(--blue); }
+        .price-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; }
+        .sell-btn { width: 100%; background: var(--red); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(255,71,87,0.3); }
 
-        /* Gaming Navigation */
-        .nav {
-            position: fixed; bottom: 20px; left: 5%; width: 90%;
-            background: rgba(5, 10, 20, 0.95); backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 242, 255, 0.15); border-radius: 20px;
-            display: flex; justify-content: space-around; padding: 15px 0;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 1000;
-        }
-        .nav-item { text-align: center; color: #475569; font-size: 10px; flex: 1; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;}
-        .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); transform: translateY(-3px); }
-        .nav-item i { font-size: 26px; display: block; margin-bottom: 5px; }
+        /* Evolution Cards (Wide & Massive) */
+        .evo-card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .evo-card.active { border-color: var(--blue); background: rgba(0,242,255,0.05); }
+        .evo-pview { width: 90px; height: 90px; background-size: contain; background-repeat: no-repeat; }
 
+        /* Footer Nav */
+        .nav { position: fixed; bottom: 20px; left: 5%; width: 90%; background: rgba(10,25,47,0.95); border-radius: 20px; display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(0,242,255,0.2); }
+        .nav-item { color: #475569; text-align: center; font-size: 10px; cursor: pointer; }
+        .nav-item.active { color: var(--blue); text-shadow: 0 0 10px var(--blue); }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="top-stats">
-        <div class="stat-card">
-            <div class="val sharki" id="sh-bal">0.00</div>
-            <div class="label">Shark Power</div>
-        </div>
-        <div class="stat-card">
-            <div class="val ton" id="tn-bal">0.0000</div>
-            <div class="label">TON Coin</div>
-        </div>
+    <div class="top-nav">
+        <div class="s-box"><div class="val" id="sh-bal">0.00</div><div class="lab">SHARKI POWER</div></div>
+        <div class="s-box"><div class="val" id="tn-bal" style="color:var(--purple)">0.0000</div><div class="lab">TON BALANCE</div></div>
     </div>
 
     <div id="game" class="page active">
-        <div style="text-align:center; color: var(--gold); font-size:13px; margin-bottom:10px;" id="current-rank">// RANK: ROOKIE SHARK</div>
-        <div class="game-zone">
-            <div class="shark-hitbox" id="shark-body" onclick="hitShark(event)">
-                <div class="real-shark-img" id="main-shark-img" style="background-image: url('https://img.icons8.com/plasticine/400/shark.png');"></div>
+        <div class="game-area">
+            <div id="shark-hitbox" class="shark-container" onclick="punch(event)">
+                <div id="main-shark" class="main-shark-img" style="background-image: url('https://i.ibb.co/LkhKq7q/shark1.png');"></div>
             </div>
-            
-            <div class="energy-hud">
-                <div class="bar-container"><div id="energy-fill" class="bar-fill"></div></div>
-                <p id="nrg-txt" style="color:#aaa; font-size:11px; margin-top:8px;">ENG: 1000/1000</p>
+            <div style="width:80%; margin-top:25px;">
+                <div style="height:8px; background:rgba(255,255,255,0.1); border-radius:10px;"><div id="eb" style="width:100%; height:100%; background:var(--blue); box-shadow:0 0 10px var(--blue);"></div></div>
+                <p id="et" style="text-align:center; font-size:11px; margin-top:10px; color:#64748b">ENERGY: 1000/1000</p>
             </div>
         </div>
     </div>
 
-    <div id="plans" class="page">
-        <h3 style="text-align:center; color:var(--neon-blue); text-transform:uppercase; letter-spacing:2px;">// EVOLUTION LABORATORY</h3>
+    <div id="trade" class="page">
+        <h3 style="text-align:center; color:var(--blue)">SHARKI / TON MARKET</h3>
+        <div class="chart-v" id="chart"></div>
         
-        <div class="evolution-grid">
-            
-            <div class="evo-card active" id="p1">
-                <div class="evo-shark-preview" style="background-image: url('https://img.icons8.com/plasticine/400/shark.png');"></div>
-                <div class="evo-details">
-                    <h3 class="glow">Rookie Shark</h3>
-                    <div class="evo-specs">Power: x1 | Limit: 1000 ENG</div>
-                </div>
-                <div class="current-label">ACTIVE</div>
+        <div class="trade-box">
+            <div class="price-info">
+                <span>Current Price:</span>
+                <span style="color:var(--green)" id="live-price">0.000105 TON</span>
             </div>
-
-            <div class="evo-card" id="p2">
-                <div class="evo-shark-preview" style="background-image: url('https://img.icons8.com/color/400/shark.png');"></div>
-                <div class="evo-details">
-                    <h3>Fighter Shark</h3>
-                    <div class="evo-specs">Power: x3 | Limit: 2000 ENG</div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <span class="price-tag">5 TON</span>
-                    <button class="btn-upgrade" onclick="upgradeShark(2)">UPGRADE</button>
-                </div>
-            </div>
-
-            <div class="evo-card" id="p3">
-                <div class="evo-shark-preview" style="background-image: url('https://img.icons8.com/fluency/400/shark.png');"></div>
-                <div class="evo-details">
-                    <h3>Warrior Shark</h3>
-                    <div class="evo-specs">Power: x10 | Limit: 5000 ENG</div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <span class="price-tag">15 TON</span>
-                    <button class="btn-upgrade" onclick="upgradeShark(3)">UPGRADE</button>
-                </div>
-            </div>
-
-            <div class="evo-card locked" id="p4">
-                <div class="evo-shark-preview" style="background-image: url('https://img.icons8.com/bubbles/400/shark.png');"></div>
-                <div class="evo-details">
-                    <h3>Guardian Shark</h3>
-                    <div class="evo-specs">Power: x25 | Limit: 10k ENG</div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <span class="price-tag">50 TON</span>
-                    <button class="btn-upgrade">LOCKED</button>
-                </div>
-            </div>
-
-            <div class="evo-card locked" id="p5">
-                <div class="evo-shark-preview" style="background-image: url('https://img.icons8.com/office/400/shark.png');"></div>
-                <div class="evo-details">
-                    <h3>ULTIMATE SHARK</h3>
-                    <div class="evo-specs">Power: x50 | Limit: 20k ENG</div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <span class="price-tag">100 TON</span>
-                    <button class="btn-upgrade">LOCKED</button>
-                </div>
-            </div>
-
+            <div style="margin-bottom:15px; font-size:12px; color:#888;">Wallet: <span id="sh-wallet">0.00</span> SHARKI</div>
+            <button class="sell-btn" onclick="sellAll()">SELL ALL SHARKI</button>
         </div>
     </div>
 
-    <div id="refs" class="page"><h3 style="text-align:center;">// RECRUITS</h3></div>
-    <div id="wallet" class="page"><h3 style="text-align:center;">// VAULT</h3></div>
+    <div id="evo" class="page">
+        <div class="evo-card active" id="c1">
+            <div class="evo-pview" style="background-image: url('https://i.ibb.co/LkhKq7q/shark1.png');"></div>
+            <div style="flex:1"><h4>Rookie Shark</h4><p style="font-size:11px; color:#888;">x1 Tap | 1k Energy</p></div>
+            <div style="color:var(--blue); font-size:10px;">ACTIVE</div>
+        </div>
+        <div class="evo-card" id="c2">
+            <div class="evo-pview" style="background-image: url('https://i.ibb.co/K2YgY0G/shark2.png');"></div>
+            <div style="flex:1"><h4>Fighter Shark</h4><p style="font-size:11px; color:#888;">x3 Tap | 2.5k Energy</p></div>
+            <button style="background:var(--blue); border:none; padding:8px 12px; border-radius:8px; font-weight:bold;">5 TON</button>
+        </div>
+        </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="showP('game', this)"><i class="fas fa-hand-fist"></i>TAP</div>
-        <div class="nav-item" onclick="showP('plans', this)"><i class="fas fa-skull"></i>EVO</div>
-        <div class="nav-item" onclick="showP('refs', this)"><i class="fas fa-users"></i>REFS</div>
-        <div class="nav-item" onclick="showP('wallet', this)"><i class="fas fa-shield-alt"></i>VAULT</div>
+        <div class="nav-item active" onclick="sh('game',this)"><i class="fas fa-hand-fist"></i>TAP</div>
+        <div class="nav-item" onclick="sh('trade',this)"><i class="fas fa-chart-line"></i>TRADE</div>
+        <div class="nav-item" onclick="sh('evo',this)"><i class="fas fa-dna"></i>EVO</div>
+        <div class="nav-item" onclick="sh('tasks',this)"><i class="fas fa-tasks"></i>TASKS</div>
     </nav>
 
     <script>
-        let power = 0; let nrg = 1000; let maxNrg = 1000; let tapPower = 1;
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.headerColor = '#02060c';
+        let bal = 0; let nrg = 1000; let multi = 1;
+        const tg = window.Telegram.WebApp; tg.expand();
 
-        // === صور القروش الحقيقية الـ 5 (تمثيلية) ===
-        const realisticSkins = {
-            1: 'https://img.icons8.com/plasticine/400/shark.png',
-            2: 'https://img.icons8.com/color/400/shark.png',
-            3: 'https://img.icons8.com/fluency/400/shark.png',
-            4: 'https://img.icons8.com/bubbles/400/shark.png',
-            5: 'https://img.icons8.com/office/400/shark.png'
-        };
-        const rankNames = { 1: '// ROOKIE SHARK', 2: '// FIGHTER SHARK', 3: '// WARRIOR SHARK', 4: '// GUARDIAN SHARK', 5: '// ULTIMATE SHARK' };
-
-        function hitShark(e) {
+        function punch(e) {
             if(nrg <= 0) return;
-            power += tapPower; nrg -= 1;
-            updateUI();
+            bal += multi; nrg -= 1;
+            document.getElementById('sh-bal').innerText = bal.toFixed(2);
+            document.getElementById('sh-wallet').innerText = bal.toFixed(2);
+            document.getElementById('eb').style.width = (nrg/10) + '%';
             
-            // Punch Effect (تأثير واقعي أقوى)
-            const body = document.getElementById('shark-body');
-            body.classList.add('hit');
-            setTimeout(() => body.classList.remove('hit'), 80);
-            tg.HapticFeedback.impactOccurred('rigid'); // اهتزاز قوي
+            const h = document.getElementById('shark-hitbox');
+            h.classList.add('hit');
+            setTimeout(() => h.classList.remove('hit'), 50);
+            tg.HapticFeedback.impactOccurred('heavy');
         }
 
-        function upgradeShark(level) {
-            // هنا نربطها بـ TON حقيقي في bot.py
-            if(confirm(`Do you want to evolve to Level ${level}?`)) {
-                tapPower = (level === 2) ? 3 : (level === 3) ? 10 : 1;
-                maxNrg = (level === 2) ? 2000 : (level === 3) ? 5000 : 1000;
-                nrg = maxNrg;
-                
-                // تغيير شكل القرش والرتبة
-                document.getElementById('main-shark-img').style.backgroundImage = `url('${realisticSkins[level]}')`;
-                document.getElementById('current-rank').innerText = rankNames[level];
-                
-                // تحديث البطاقات
-                document.querySelectorAll('.evo-card').forEach(c => c.classList.remove('active'));
-                document.getElementById(`p${level}`).classList.add('active');
-
-                alert("Evolution Complete!");
-                showP('game', document.querySelector('.nav-item')); // العودة للصفحة الرئيسية
+        // Fake Chart Movement
+        function initChart() {
+            const chart = document.getElementById('chart');
+            for(let i=0; i<30; i++) {
+                let c = document.createElement('div');
+                c.className = 'candle';
+                c.style.left = (i * 12) + 'px';
+                let h = Math.random() * 60 + 20;
+                c.style.height = h + 'px';
+                c.style.background = Math.random() > 0.5 ? '#2ed573' : '#ff4757';
+                chart.appendChild(c);
             }
         }
+        setInterval(() => {
+            const candles = document.querySelectorAll('.candle');
+            candles.forEach(c => {
+                let h = Math.random() * 60 + 20;
+                c.style.height = h + 'px';
+                c.style.background = Math.random() > 0.5 ? '#2ed573' : '#ff4757';
+            });
+            let p = (0.0001 + (Math.random() * 0.00001)).toFixed(6);
+            document.getElementById('live-price').innerText = p + " TON";
+        }, 2000);
 
-        function updateUI() {
-            document.getElementById('sh-bal').innerText = power.toFixed(2);
-            document.getElementById('nrg-txt').innerText = `ENG: ${nrg}/${maxNrg}`;
-            document.getElementById('energy-fill').style.width = (nrg/maxNrg*100) + '%';
-        }
-
-        function showP(id, el) {
+        function sh(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
-            tg.HapticFeedback.selectionChanged();
         }
-
-        // استعادة الطاقة
-        setInterval(() => { if(nrg < maxNrg) { nrg += 1; updateUI(); } }, 2000);
+        initChart();
     </script>
 </body>
 </html>
